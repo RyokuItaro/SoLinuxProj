@@ -7,41 +7,48 @@
 #include <unistd.h>
 #include <syslog.h>
 #include <string.h>
-int main(void) {
-        
+
+volatile bool killDaemon = false;
+
+void forkProcess(){
+        syslog(LOG_INFO, "forkProcess - IN");     
         pid_t pid, sid;
         
         pid = fork();
         if (pid < 0) {
+                syslog(LOG_CRIT, "forkProcess - Could not fork process");
                 exit(EXIT_FAILURE);
         }
         
         if (pid > 0) {
                 exit(EXIT_SUCCESS);
         }
+
         umask(0);
-                
+
+        syslog(LOG_INFO, "forkProcess - Setting SID for child")                
         sid = setsid();
         if (sid < 0) {
-                /* Log the failure */
+                syslog(LOG_CRIT, "forkProcess - Could not set SID");
                 exit(EXIT_FAILURE);
         }
         
-        
-        /* Change the current working directory */
         if ((chdir("/")) < 0) {
-                /* Log the failure */
+                syslog(LOG_CRIT, "forkProcess - Could not change working directory");
                 exit(EXIT_FAILURE);
         }
         
         close(STDIN_FILENO);
         close(STDOUT_FILENO);
         close(STDERR_FILENO);
-        
-        while (1) {
+        syslog(LOG_INFO, "forkProcess - OUT");
+}
 
-           
-           sleep(15);
-        }
-   exit(EXIT_SUCCESS);
+int main(void) {
+        forkProcess();
+        while(true){
+                syslog(LOG_INFO, "main - Mirroring directory - In");
+                syslog(LOG_INFO, "main - Mirroring directory - Out");        
+                sleep(1);
+        }       
 }
