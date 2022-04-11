@@ -8,7 +8,7 @@
 #include <syslog.h>
 #include <string.h>
 
-volatile bool killDaemon = false;
+volatile short int killDaemon = 0;
 
 void forkProcess(){
         syslog(LOG_INFO, "forkProcess - IN");     
