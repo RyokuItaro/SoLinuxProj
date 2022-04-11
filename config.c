@@ -1,5 +1,8 @@
 #include "headers/config.h"
+#include <stdio.h>
 #include <syslog.h>
+#include <string.h>
+#include <stdlib.h>
 
 config defaultConfig(){
     config DEFAULT_CONFIG = {300, 0, "", "" };
