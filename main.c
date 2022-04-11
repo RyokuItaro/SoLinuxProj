@@ -46,8 +46,10 @@ void forkProcess(){
 
 int main(void) {
         forkProcess();
+        int sec = 0;
         while(true){
                 syslog(LOG_INFO, "main - Mirroring directory - In");
+                printf("Working s: %d", sec++);
                 syslog(LOG_INFO, "main - Mirroring directory - Out");        
                 sleep(1);
         }       
