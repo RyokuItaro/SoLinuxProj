@@ -26,7 +26,7 @@ void forkProcess(){
 
         umask(0);
 
-        syslog(LOG_INFO, "forkProcess - Setting SID for child")                
+        syslog(LOG_INFO, "forkProcess - Setting SID for child");               
         sid = setsid();
         if (sid < 0) {
                 syslog(LOG_CRIT, "forkProcess - Could not set SID");
@@ -44,10 +44,10 @@ void forkProcess(){
         syslog(LOG_INFO, "forkProcess - OUT");
 }
 
-int main(void) {
+int main() {
         forkProcess();
         int sec = 0;
-        while(true){
+        while(1){
                 syslog(LOG_INFO, "main - Mirroring directory - In");
                 printf("Working s: %d", sec++);
                 syslog(LOG_INFO, "main - Mirroring directory - Out");        
