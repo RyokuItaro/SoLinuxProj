@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include <syslog.h>
 #include <string.h>
+#include "headers/config.h"
 
 volatile short int killDaemon = 0;
 
@@ -59,8 +60,10 @@ void signalKillDaemon(){
 }
 
 int main() {
+        openlog("syncingDaemonLog", LOG_PID | LOG_CONS, LOG_USER);
         forkProcess();
         setCustomSignals();
+        parseParams();
         int sec = 0;
         while(1){
                 syslog(LOG_INFO, "main - Mirroring directory - In");
