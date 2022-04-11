@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include <syslog.h>
 #include <string.h>
+#include <signal.h>
 #include "headers/config.h"
 
 volatile short int killDaemon = 0;
