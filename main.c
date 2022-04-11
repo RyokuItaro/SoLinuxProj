@@ -44,12 +44,26 @@ void forkProcess(){
         syslog(LOG_INFO, "forkProcess - OUT");
 }
 
+void setCustomSignals(){
+    signal(SIGUSR1, signalForceDeamonJob);
+    signal(SIGTERM, signalKillDaemon);
+}
+
+void signalForceDeamonJob(){
+    syslog(LOG_INFO, "Wymuszenie w trakcie synchronizacji, kontynuuję");
+}
+
+void signalKillDaemon(){
+    syslog(LOG_INFO, "Daemon process killed");
+    exit(EXIT_SUCCESS);
+}
+
 int main() {
         forkProcess();
+        setCustomSignals();
         int sec = 0;
         while(1){
                 syslog(LOG_INFO, "main - Mirroring directory - In");
-                printf("Working s: %d", sec++);
                 syslog(LOG_INFO, "main - Mirroring directory - Out");        
                 sleep(1);
         }       
