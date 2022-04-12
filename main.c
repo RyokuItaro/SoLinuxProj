@@ -39,10 +39,7 @@ void forkProcess(){
                 syslog(LOG_CRIT, "forkProcess - Could not change working directory");
                 exit(EXIT_FAILURE);
         }
-        
-        close(STDIN_FILENO);
-        close(STDOUT_FILENO);
-        close(STDERR_FILENO);
+
         syslog(LOG_INFO, "forkProcess - OUT");
 }
 
@@ -60,15 +57,15 @@ void setCustomSignals(){
     signal(SIGTERM, signalKillDaemon);
 }
 
-int main() {
+int main(int argc, char *argv[]) {
         openlog("syncingDaemonLog", LOG_PID | LOG_CONS, LOG_USER);
         forkProcess();
         setCustomSignals();
-        parseParams();
+        config conf = parseParams(argc, argv);
         int sec = 0;
-        while(1){
-                syslog(LOG_INFO, "main - Mirroring directory - In");
-                syslog(LOG_INFO, "main - Mirroring directory - Out");        
-                sleep(1);
-        }       
+        //while(1){
+        //        syslog(LOG_INFO, "main - Mirroring directory - In");
+        //        syslog(LOG_INFO, "main - Mirroring directory - Out");        
+        //        sleep(1);
+        //}       
 }

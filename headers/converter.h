@@ -1,0 +1,1 @@
+int parseTime(char *time);

@@ -1,4 +1,5 @@
 #include "headers/config.h"
+#include "headers/converter.h"
 #include <stdio.h>
 #include <syslog.h>
 #include <string.h>
@@ -6,13 +7,14 @@
 
 config defaultConfig(){
     syslog(LOG_INFO, "defaultConfig - In");
-    config DEFAULT_CONFIG = {300, 0, "", "" };
+    config DEFAULT_CONFIG = {300, 0, "", ""};
     return DEFAULT_CONFIG;
     syslog(LOG_INFO, "defaultConfig - Out");
 }
 
 void showAvailableParams(){
     syslog(LOG_INFO, "showAvailableParams - In");
+    printf("\n");
     printf("Demon pobiera 4 argumenty \n");
     printf("\"-s [sekundy]\" - ustawia czas oczekiwania demona na kolejna synchronizacje katalogow\n");
     printf("\"-r\" - wlacza rekurswyne kopiowanie katalogow\n");
@@ -38,6 +40,8 @@ config parseParams(int argc, char *argv[]){
             switch (param) {
             case 's':
                 syslog(LOG_INFO, "parseParams - Received %c", param);
+                int ret = parseTime(argv[i+1]);
+                printf("%d return \n", ret);
                 conf.syncingBreak = argv[i+1];
                 i++;
                 break;
@@ -82,4 +86,6 @@ config parseParams(int argc, char *argv[]){
         syslog(LOG_CRIT, "Destination directory not set");
         exit(EXIT_FAILURE);
     }
+
+    return conf;
 }

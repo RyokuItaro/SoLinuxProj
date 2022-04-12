@@ -6,5 +6,5 @@ typedef struct {
 } config;
 
 config defaultConfig();
-config parseParams();
+config parseParams(int argc, char *argv[]);
 void showAvailableParams();
