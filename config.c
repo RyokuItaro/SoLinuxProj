@@ -41,14 +41,14 @@ config parseParams(int argc, char *argv[]){
             case 's':
                 syslog(LOG_INFO, "parseParams - Received %c", param);
                 int ret = parseTime(argv[i+1]);
-                printf("%d return \n", ret);
-                conf.syncingBreak = argv[i+1];
+                conf.syncingBreak = ret;
                 i++;
                 break;
 
             case 'r':
                 syslog(LOG_INFO, "parseParams - Received %c", param);
                 conf.recursive = 1;
+                printf("recursive - on\n");
                 break;
 
             case '?':
@@ -69,21 +69,26 @@ config parseParams(int argc, char *argv[]){
             
             if(1 > strlen(conf.sourceDir)){
                 syslog(LOG_INFO, "parseParams - Parsing source dir");
+                printf("source - on\n");
                 conf.sourceDir = arg;
             }
-            
-            if(1 > strlen(conf.destinationDir)){
+            else{
+                if(1 > strlen(conf.destinationDir)){
                 syslog(LOG_INFO, "parseParams - Parsing destination dir");
+                printf("destination - on\n");
                 conf.destinationDir = arg;
+                }
             }
         }
     }
     if(conf.sourceDir == ""){
         syslog(LOG_CRIT, "Source directory not set");
+        printf("source not found\n");
         exit(EXIT_FAILURE);
     }
     if(conf.destinationDir == ""){
         syslog(LOG_CRIT, "Destination directory not set");
+        printf("directory not found\n");
         exit(EXIT_FAILURE);
     }
 

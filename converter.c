@@ -9,7 +9,6 @@ int parseTime(char *time){
     for(int i = 0; i < strlen(time); i++){
         seconds += (time[i]-48) * pow(10, decimalPlaces-1);
         printf("sec %d \n", seconds);
-        printf("places %d \n", decimalPlaces-1);
         decimalPlaces--;
     }
     return seconds;
