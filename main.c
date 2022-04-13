@@ -8,7 +8,9 @@
 #include <syslog.h>
 #include <string.h>
 #include <signal.h>
+#include <limits.h>
 #include "headers/config.h"
+#include "headers/dir.h"
 
 volatile short int killDaemon = 0;
 
@@ -43,18 +45,20 @@ void forkProcess(){
         syslog(LOG_INFO, "forkProcess - OUT");
 }
 
-void signalKillDaemon(){
+void signalKillDaemon(int signum){
     syslog(LOG_INFO, "Daemon process killed");
-    exit(EXIT_SUCCESS);
+    printf("oblewa demona woda swiecona");
+    killDaemon = 1;
 }
 
-void signalForceDeamonJob(){
-    syslog(LOG_INFO, "Wymuszenie w trakcie synchronizacji, kontynuuję");
+void signalForceDeamonJob(int signum){
+    syslog(LOG_INFO, "Wymuszenie synchronizacji");
+    printf("szturcha demona");
 }
 
 void setCustomSignals(){
     signal(SIGUSR1, signalForceDeamonJob);
-    signal(SIGTERM, signalKillDaemon);
+    signal(SIGINT, signalKillDaemon);
 }
 
 int main(int argc, char *argv[]) {
@@ -62,10 +66,34 @@ int main(int argc, char *argv[]) {
         forkProcess();
         setCustomSignals();
         config conf = parseParams(argc, argv);
-        int sec = 0;
-        //while(1){
-        //        syslog(LOG_INFO, "main - Mirroring directory - In");
-        //        syslog(LOG_INFO, "main - Mirroring directory - Out");        
-        //        sleep(1);
-        //}       
+        char *sourceBuf[PATH_MAX];
+        char *destinationBuf[PATH_MAX];
+
+        if(!checkIfDirectoryExists(conf.sourceDir)){
+                syslog(LOG_CRIT, "Directory not found - %s", conf.sourceDir);
+                exit(EXIT_FAILURE);
+        }
+
+        if(!checkIfDirectoryExists(conf.destinationDir)){
+                syslog(LOG_CRIT, "Directory not found - %s", conf.destinationDir);
+                exit(EXIT_FAILURE);
+        }
+
+        conf.sourceDir = realpath(conf.sourceDir, sourceBuf);
+        conf.destinationDir = realpath(conf.destinationDir,destinationBuf);
+
+        if(checkIfDirectoriesContainEachOther(conf.sourceDir, conf.destinationDir)){
+                syslog(LOG_CRIT, "Directory cant include /A/B/ or /B/A/");
+                exit(EXIT_FAILURE);
+        }
+
+        while(killDaemon == 0){
+                syslog(LOG_INFO, "main - Mirroring directory - In");
+                doJob(conf);
+                syslog(LOG_INFO, "main - Mirroring directory - Out");        
+                sleep(conf.syncingBreak);
+        }
+
+        closelog();
+        return 0;
 }
