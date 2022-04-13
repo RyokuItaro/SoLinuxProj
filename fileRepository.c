@@ -58,7 +58,7 @@ fileList *reverseList(fileList *list){
     return first;
 }
 
-fileList *deleteLast(fileList *list, fileList *next){
+fileList *mergeList(fileList *list, fileList *next){
     while(list->next != NULL)
         list = list->next;
 
