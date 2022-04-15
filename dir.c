@@ -1,11 +1,14 @@
 #include <dirent.h>
 #include <errno.h>
 #include <syslog.h>
+#include <string.h>
 #include <headers/dir.h>
+#include <headers/fileRepository.h>
 #include <stdio.h>
 #include <unistd.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <dirent.h>
 
 int checkIfDirectoryExists(char *name){
     syslog(LOG_INFO, "checkIfDirectoryExists - In");
@@ -22,6 +25,26 @@ int checkIfDirectoryExists(char *name){
     else{
         syslog(LOG_CRIT, "Unknown error, directory: %s", name);
         return 0;
+    }
+}
+
+fileList *getFilesFromDirectory(char *path, int recursive){
+    fileList *list = createList();
+    DIR *dir;
+    struct dirent *dirEnt;
+    dir = opendir(dir);
+    while ((dirEnt = reddir(dir)) != NULL){
+        if(strcmp(dirEnt->d_name,'.') != 0 && strcmp(dirEnt->d_name,'..') != 0) break;
+        int lengthOfPath = strlen(path) + strlen(dirEnt->d_name) + 2;
+        char fullPath[lengthOfPath];
+        fileType type = getFileType(fullPath);
+        if(getFileType(fullPath) == regularFile){
+            addToList(list, dirEnt->d_name, path, type);
+        }
+        else if(type == directory && recursive){
+            addToList(list,dirEnt->d_name, path, type);
+            mergeList(list, getFilesFromDriectory(fullPath, 1));
+        }
     }
 }
 

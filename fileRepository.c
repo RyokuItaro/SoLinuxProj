@@ -1,5 +1,7 @@
 #include <headers/fileRepository.h>
+#include <headers/config.h>
 #include <string.h>
+#include <sys/stat.h>
 
 fileList *createList (){
     fileList *list = malloc(sizeof(fileList));
@@ -9,7 +11,15 @@ fileList *createList (){
     return list;
 }
 
-fileList *addToList(fileList *list, char *name, char *path{
+fileType getFileType(char *path){
+    struct stat dirstat;
+    stat(path, &dirstat);
+    if(S_ISREG(dirstat.st_mode)) return regularFile;
+    else if(S_ISDIR(dirstat.st_mode)) return directory;
+    else return unidentified;
+}
+
+fileList *addToList(fileList *list, char *name, char *path, fileType type){
     while(list->next != NULL){
         list = list->next; //jak ja nienawidze list w struct :>
     }
@@ -20,6 +30,7 @@ fileList *addToList(fileList *list, char *name, char *path{
     strcpy(list->name, name);
     strcpy(list->path, path);
     list->next = NULL;
+    list->type = type;
     return list; //done
 }
 
@@ -67,4 +78,10 @@ fileList *mergeList(fileList *list, fileList *next){
     free(next->path);
     free(next);
     return list;
+}
+
+fileList *deleteIfNotInSource(config conf){
+    fileList *list = ;
+    fileList *reverse = ;
+    fileList *first = ;
 }
