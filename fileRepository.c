@@ -1,4 +1,6 @@
 #include <headers/fileRepository.h>
+#include <headers/dir.h>
+#include <utime.h>
 #include <headers/config.h>
 #include <string.h>
 #include <sys/stat.h>
@@ -21,7 +23,7 @@ fileType getFileType(char *path){
 
 fileList *addToList(fileList *list, char *name, char *path, fileType type){
     while(list->next != NULL){
-        list = list->next; //jak ja nienawidze list w struct :>
+        list = list->next; //postawy programowania flashbacks
     }
     list->next = malloc(sizeof(fileList)); //jak koniec listy to dodajemy do listy plik - przgotowujemy pamiec
     list = list->next; //lecymy
@@ -81,7 +83,46 @@ fileList *mergeList(fileList *list, fileList *next){
 }
 
 fileList *deleteIfNotInSource(config conf){
-    fileList *list = ;
-    fileList *reverse = ;
-    fileList *first = ;
+    fileList *list = getFilesFromDirectory(conf.destinationDir, conf.recursive);
+    fileList *reverse = reverseList(list);
+    fileList *first = reverse;
+    emptyList(list);
+
+    while(reverse->next != NULL){
+        reverse = reverse->next;
+
+        int sourcePathLength = strlen(reverse->path) + strlen(reverse->path) - strlen(conf.destinationDir) + 2 + strlen(conf.sourceDir);
+        int targetPathLength = strlen(reverse->path) + strlen(reverse->name) + 3;
+        char targetPath[targetPathLength];
+        char sourcePath[sourcePathLength];
+        snprintf(targetPath, targetPathLength, "%s/%s", reverse->path, reverse->name);
+        snprintf(sourcePath, sourcePathLength, "%s%s/%s", conf.sourceDir, reverse->path + strlen(conf.destinationDir), reverse->name);
+        if(!checkIfFileExists(sourcePath)){
+            if(reverse->type == directory){
+                rmdir(targetPath);
+            }
+            else{
+                remove(targetPath);
+            }
+        }
+        emptyList(first);
+    }
+}
+
+void injectTimestamp(char *source, char *dest){
+    struct stat tstmp;
+    struct utimbuf newTstmp;
+    stat(source, &tstmp);
+    newTstmp.actime = tstmp.st_atim.tv_sec;
+    newTstmp.modtime = tstmp.st_mtim.tv_sec;
+    utime(dest, &newTstmp);
+    chmod(dest, tstmp.st_mode);
+}
+
+int compareTimestamps(char *source, char *dest){
+    struct stat tstmp1;
+    struct stat tstmp2;
+    stat(source, &tstmp1);
+    stat(dest, &tstmp2);
+    return (tstmp1.st_mtim.tv_sec == tstmp2.st_mtim.tv_sec);
 }

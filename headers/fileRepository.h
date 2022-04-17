@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <headers/config.h>
 
 typedef struct fileList fileList;
 
@@ -17,8 +18,10 @@ struct fileList{
 
 fileList *createList ();
 fileType getFileType(char *path);
-fileList *addToList(fileList *list, char *name, char *path, fileType *type);
+fileList *addToList(fileList *list, char *name, char *path, fileType type);
 void *emptyList(fileList *first);
 fileList *reverseList(fileList *list);
 fileList *mergeList(fileList *list, fileList *next);
 fileList *deleteIfNotInSource(config conf);
+void injectTimestamps(char *source, char *dest);
+int compareTimestamps(char *source, char *dest);
