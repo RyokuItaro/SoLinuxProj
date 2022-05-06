@@ -1,3 +1,8 @@
+#ifndef FILEREPOSITORY_H
+#define FILEREPOSITORY_H
+
+#include "config.h"
+
 typedef struct fileList fileList;
 
 typedef enum {
@@ -22,3 +27,4 @@ fileList *mergeList(fileList *list, fileList *next);
 fileList *deleteIfNotInSource(config conf);
 void injectTimestamps(char *source, char *dest);
 int compareTimestamps(char *source, char *dest);
+#endif

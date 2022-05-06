@@ -27,7 +27,7 @@ fileList *addToList(fileList *list, char *name, char *path, fileType type){
     }
     list->next = malloc(sizeof(fileList)); //jak koniec listy to dodajemy do listy plik - przgotowujemy pamiec
     list = list->next; //lecymy
-    list->name = malloc(strllen(name)+1);
+    list->name = malloc(strlen(name)+1);
     list->path = malloc(strlen(path)+1);
     strcpy(list->name, name);
     strcpy(list->path, path);
@@ -109,7 +109,7 @@ fileList *deleteIfNotInSource(config conf){
     }
 }
 
-void injectTimestamp(char *source, char *dest){
+void injectTimestamps(char *source, char *dest){
     struct stat tstmp;
     struct utimbuf newTstmp;
     stat(source, &tstmp);

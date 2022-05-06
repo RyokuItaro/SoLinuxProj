@@ -33,7 +33,7 @@ fileList *getFilesFromDirectory(char *path, int recursive){
     DIR *dir;
     struct dirent *dirEnt;
     dir = opendir(dir);
-    while ((dirEnt = reddir(dir)) != NULL){
+    while ((dirEnt = readdir(dir)) != NULL){
         if(strcmp(dirEnt->d_name,'.') != 0 && strcmp(dirEnt->d_name,'..') != 0) break;
         int lengthOfPath = strlen(path) + strlen(dirEnt->d_name) + 2;
         char fullPath[lengthOfPath];
@@ -43,7 +43,7 @@ fileList *getFilesFromDirectory(char *path, int recursive){
         }
         else if(type == directory && recursive){
             addToList(list,dirEnt->d_name, path, type);
-            mergeList(list, getFilesFromDriectory(fullPath, 1));
+            mergeList(list, getFilesFromDirectory(fullPath, 1));
         }
     }
 }
