@@ -1,8 +1,9 @@
-#include <headers/job.h>
-#include <headers/config.h>
-#include <headers/fileRepository.h>
-#include <headers/dir.h>
+#include "headers/job.h"
+#include "headers/config.h"
+#include "headers/fileRepository.h"
+#include "headers/dir.h"
 #include <string.h>
+#include <stdio.h>
 #include <stdlib.h>
 
 void doJob(config conf){
@@ -12,7 +13,7 @@ void doJob(config conf){
     while(list->next != NULL){
         list = list->next;
 
-        int fullSourcePathLength = strlen(list->path) + strl(list->name) + 2;
+        int fullSourcePathLength = strlen(list->path) + strlen(list->name) + 2;
         int fullDestPathLength = strlen(list->path) + strlen(list->name) - strlen(conf.sourceDir) + strlen(conf.destinationDir) + 2;
 
         char fullSourcePath[fullSourcePathLength];
@@ -48,4 +49,3 @@ void doJob(config conf){
     }
     emptyList(first);
 }
-    

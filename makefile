@@ -1,5 +1,5 @@
 all:
-	gcc -o daemon $(wildcard *.c) -lm -I headers
+	gcc -o daemon $(wildcard *.c) -lm -fcompare-debug-second -w -I headers
 
 .PHONY: clean
 clean:

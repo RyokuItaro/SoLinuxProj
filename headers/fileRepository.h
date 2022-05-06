@@ -1,6 +1,3 @@
-#include <stdlib.h>
-#include <headers/config.h>
-
 typedef struct fileList fileList;
 
 typedef enum {
