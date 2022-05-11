@@ -3,11 +3,9 @@
 
 #include "fileRepository.h"
 
-int checkIfDirectoryExists(char *name);
 int checkIfDirectoriesContainEachOther(char *namea, char *nameb);
-int checkIfDirectoryExists(char *name);
+int checkIfDirectoryExists(const char *name);
 fileList *getFilesFromDirectory(char *path, int recusive);
-int checkIfDirectoriesContainEachOther(char *namea, char *nameb);
 int checkIfFileExists(char *name);
 int checkIfFileIsDirectory(char *name);
 void createFile(char *path);

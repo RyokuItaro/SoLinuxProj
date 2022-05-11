@@ -1,6 +1,13 @@
-all:
-	gcc -o daemon $(wildcard *.c) -lm -fcompare-debug-second -w -I headers
+SOURCES := $(wildcard *.c)
 
-.PHONY: clean
+all:
+	gcc -o demon $(SOURCES) -I headers -lm
+
 clean:
-	rm -f *.o
+	rm demon
+	
+install: all
+	cp demon /usr/bin
+
+uninstall:
+	rm /usr/bin/demon

@@ -1,38 +1,50 @@
 #include "headers/fileRepository.h"
 #include "headers/dir.h"
 #include <utime.h>
+#include <unistd.h>
 #include "headers/config.h"
 #include <string.h>
 #include <sys/stat.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <syslog.h>
 
-fileList *createList (){
+fileList* createList (){
+    syslog(LOG_INFO, "createList - In");
     fileList *list = malloc(sizeof(fileList));
     list->next = NULL;
     list->name = NULL;
     list->path = NULL;
+    syslog(LOG_INFO, "createList - Out");
     return list;
 }
 
 fileType getFileType(char *path){
+    syslog(LOG_INFO, "getFileType - In");
     struct stat dirstat;
     stat(path, &dirstat);
+    syslog(LOG_INFO, "getFileType - Out");
     if(S_ISREG(dirstat.st_mode)) return regularFile;
     else if(S_ISDIR(dirstat.st_mode)) return directory;
     else return unidentified;
 }
 
 fileList *addToList(fileList *list, char *name, char *path, fileType type){
+    syslog(LOG_INFO, "addToList - In");
     while(list->next != NULL){
+        syslog(LOG_INFO, "addToList - iterowanie po liscie");
         list = list->next; //postawy programowania flashbacks
     }
     list->next = malloc(sizeof(fileList)); //jak koniec listy to dodajemy do listy plik - przgotowujemy pamiec
     list = list->next; //lecymy
     list->name = malloc(strlen(name)+1);
     list->path = malloc(strlen(path)+1);
+    syslog(LOG_INFO, "addToList - Copy");
     strcpy(list->name, name);
     strcpy(list->path, path);
     list->next = NULL;
     list->type = type;
+    syslog(LOG_INFO, "addToList - Out");
     return list; //done
 }
 

@@ -5,12 +5,26 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <fcntl.h>
+#include <errno.h>
+#include <unistd.h>
+#include <syslog.h>
+#include <string.h>
+#include <signal.h>
+#include <limits.h>
 
 void doJob(config conf){
+    syslog(LOG_INFO, "doJob - In");
+    
     fileList *list = getFilesFromDirectory(conf.sourceDir, conf.recursive);
     fileList *first = list;
 
     while(list->next != NULL){
+        syslog(LOG_INFO, "while - IN");
         list = list->next;
 
         int fullSourcePathLength = strlen(list->path) + strlen(list->name) + 2;
@@ -18,7 +32,6 @@ void doJob(config conf){
 
         char fullSourcePath[fullSourcePathLength];
         char fullDestPath[fullDestPathLength];
-
         snprintf(fullSourcePath, fullSourcePathLength,"%s/%s", list->path, list->name);
         snprintf(fullDestPath, fullDestPathLength, "%s%s/%s", conf.destinationDir, list->path + strlen(conf.sourceDir), list->name);
 
@@ -47,5 +60,6 @@ void doJob(config conf){
             }
         }
     }
+    syslog(LOG_INFO, "doJob - Out");
     emptyList(first);
 }

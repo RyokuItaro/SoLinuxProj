@@ -11,6 +11,7 @@
 #include <limits.h>
 #include "headers/config.h"
 #include "headers/dir.h"
+#include "headers/job.h"
 
 volatile short int killDaemon = 0;
 
@@ -43,17 +44,19 @@ void forkProcess(){
         }
 
         syslog(LOG_INFO, "forkProcess - OUT");
+
+        close(STDIN_FILENO);
+        close(STDOUT_FILENO);
+        close(STDERR_FILENO);
 }
 
 void signalKillDaemon(int signum){
     syslog(LOG_INFO, "Daemon process killed");
-    printf("oblewa demona woda swiecona");
     killDaemon = 1;
 }
 
 void signalForceDeamonJob(int signum){
     syslog(LOG_INFO, "Wymuszenie synchronizacji");
-    printf("szturcha demona");
 }
 
 void setCustomSignals(){
@@ -66,21 +69,21 @@ int main(int argc, char *argv[]) {
         forkProcess();
         setCustomSignals();
         config conf = parseParams(argc, argv);
-        char *sourceBuf[PATH_MAX];
-        char *destinationBuf[PATH_MAX];
+        char sourceBuf[PATH_MAX+1];
+        char destinationBuf[PATH_MAX+1];
 
-        if(!checkIfDirectoryExists(conf.sourceDir)){
+        if(0 == checkIfDirectoryExists(conf.sourceDir)){
                 syslog(LOG_CRIT, "Directory not found - %s", conf.sourceDir);
                 exit(EXIT_FAILURE);
         }
 
-        if(!checkIfDirectoryExists(conf.destinationDir)){
+        if(0 == checkIfDirectoryExists(conf.destinationDir)){
                 syslog(LOG_CRIT, "Directory not found - %s", conf.destinationDir);
                 exit(EXIT_FAILURE);
         }
 
         conf.sourceDir = realpath(conf.sourceDir, sourceBuf);
-        conf.destinationDir = realpath(conf.destinationDir,destinationBuf);
+        conf.destinationDir = realpath(conf.destinationDir, destinationBuf);
 
         if(checkIfDirectoriesContainEachOther(conf.sourceDir, conf.destinationDir)){
                 syslog(LOG_CRIT, "Directory cant include /A/B/ or /B/A/");

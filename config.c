@@ -8,8 +8,8 @@
 config defaultConfig(){
     syslog(LOG_INFO, "defaultConfig - In");
     config DEFAULT_CONFIG = {300, 0, "", ""};
-    return DEFAULT_CONFIG;
     syslog(LOG_INFO, "defaultConfig - Out");
+    return DEFAULT_CONFIG;
 }
 
 void showAvailableParams(){
@@ -26,7 +26,8 @@ void showAvailableParams(){
 config parseParams(int argc, char *argv[]){
     syslog(LOG_INFO, "parseParams - In");
     config conf = defaultConfig();
-
+    int dirCount = 0;
+    
     for(int i = 1; i < argc; i++){
         syslog(LOG_INFO, "parseParams - Get %d parameter", i);
         char *arg = argv[i];
@@ -48,7 +49,6 @@ config parseParams(int argc, char *argv[]){
             case 'r':
                 syslog(LOG_INFO, "parseParams - Received %c", param);
                 conf.recursive = 1;
-                printf("recursive - on\n");
                 break;
 
             case '?':
@@ -61,36 +61,28 @@ config parseParams(int argc, char *argv[]){
             default:
                 syslog(LOG_CRIT, "Unknown parameter \"%c\"", param);
                 exit(EXIT_FAILURE);
+                break;
             }
         }
         else {
             if(arg[strlen(arg)-1] == '/') //jesli ktos da / na koncu scieżki to trzeba usunąć
                 arg[strlen(arg)-1] = '\0';
-            
-            if(1 > strlen(conf.sourceDir)){
-                syslog(LOG_INFO, "parseParams - Parsing source dir");
-                printf("source - on\n");
+            if(dirCount == 0){
                 conf.sourceDir = arg;
             }
-            else{
-                if(1 > strlen(conf.destinationDir)){
-                syslog(LOG_INFO, "parseParams - Parsing destination dir");
-                printf("destination - on\n");
+            else if(dirCount == 1){
                 conf.destinationDir = arg;
-                }
             }
+            dirCount++;
         }
     }
     if(conf.sourceDir == ""){
         syslog(LOG_CRIT, "Source directory not set");
-        printf("source not found\n");
         exit(EXIT_FAILURE);
     }
     if(conf.destinationDir == ""){
         syslog(LOG_CRIT, "Destination directory not set");
-        printf("directory not found\n");
         exit(EXIT_FAILURE);
     }
-
     return conf;
 }
