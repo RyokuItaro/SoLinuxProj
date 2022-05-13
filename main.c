@@ -43,10 +43,6 @@ void forkProcess(){
                 syslog(LOG_CRIT, "Could not change working directory");
                 exit(EXIT_FAILURE);
         }
-
-        close(STDIN_FILENO);
-        close(STDOUT_FILENO);
-        close(STDERR_FILENO);
 }
 
 void signalKillDaemon(int signum){
