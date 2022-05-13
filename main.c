@@ -14,14 +14,15 @@
 #include "headers/job.h"
 
 volatile short int killDaemon = 0;
+volatile short int syncInProgress = 0;
+volatile config conf;
 
 void forkProcess(){
-        syslog(LOG_INFO, "forkProcess - IN");     
         pid_t pid, sid;
         
         pid = fork();
         if (pid < 0) {
-                syslog(LOG_CRIT, "forkProcess - Could not fork process");
+                syslog(LOG_CRIT, "Could not fork process");
                 exit(EXIT_FAILURE);
         }
         
@@ -31,19 +32,17 @@ void forkProcess(){
 
         umask(0);
 
-        syslog(LOG_INFO, "forkProcess - Setting SID for child");               
+        syslog(LOG_INFO, "Setting SID for child");               
         sid = setsid();
         if (sid < 0) {
-                syslog(LOG_CRIT, "forkProcess - Could not set SID");
+                syslog(LOG_CRIT, "Could not set SID");
                 exit(EXIT_FAILURE);
         }
         
         if ((chdir("/")) < 0) {
-                syslog(LOG_CRIT, "forkProcess - Could not change working directory");
+                syslog(LOG_CRIT, "Could not change working directory");
                 exit(EXIT_FAILURE);
         }
-
-        syslog(LOG_INFO, "forkProcess - OUT");
 
         close(STDIN_FILENO);
         close(STDOUT_FILENO);
@@ -51,12 +50,18 @@ void forkProcess(){
 }
 
 void signalKillDaemon(int signum){
-    syslog(LOG_INFO, "Daemon process killed");
+    syslog(LOG_INFO, "Forced daemon to stop working");
     killDaemon = 1;
 }
 
 void signalForceDeamonJob(int signum){
-    syslog(LOG_INFO, "Wymuszenie synchronizacji");
+    if(syncInProgress == 1){
+        syslog(LOG_INFO, "Daemon is synchronizing directories now!");
+    }
+    else{
+        syslog(LOG_INFO, "Forcing directory sync");
+        doJob(conf);
+    }
 }
 
 void setCustomSignals(){
@@ -68,7 +73,7 @@ int main(int argc, char *argv[]) {
         openlog("syncingDaemonLog", LOG_PID | LOG_CONS, LOG_USER);
         forkProcess();
         setCustomSignals();
-        config conf = parseParams(argc, argv);
+        conf = parseParams(argc, argv);
         char sourceBuf[PATH_MAX+1];
         char destinationBuf[PATH_MAX+1];
 
@@ -91,9 +96,11 @@ int main(int argc, char *argv[]) {
         }
 
         while(killDaemon == 0){
-                syslog(LOG_INFO, "main - Mirroring directory - In");
+                syslog(LOG_INFO, "Synchronizing directories");
+                syncInProgress = 1;
                 doJob(conf);
-                syslog(LOG_INFO, "main - Mirroring directory - Out");        
+                syncInProgress = 0;
+                syslog(LOG_INFO, "Synchronizing ended properly");        
                 sleep(conf.syncingBreak);
         }
 

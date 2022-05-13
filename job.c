@@ -18,13 +18,12 @@
 #include <limits.h>
 
 void doJob(config conf){
-    syslog(LOG_INFO, "doJob - In");
-    
+    deleteIfNotInSource(conf);
+
     fileList *list = getFilesFromDirectory(conf.sourceDir, conf.recursive);
     fileList *first = list;
 
     while(list->next != NULL){
-        syslog(LOG_INFO, "while - IN");
         list = list->next;
 
         int fullSourcePathLength = strlen(list->path) + strlen(list->name) + 2;
@@ -43,7 +42,7 @@ void doJob(config conf){
             }
             else if(list->type == regularFile){
                 if(!compareTimestamps(fullSourcePath, fullDestPath)){
-                    removeFile(fullDestPath);
+                    remove(fullDestPath);
                     copyFile(fullSourcePath, fullDestPath);
                     injectTimestamps(fullSourcePath, fullDestPath);
                 }
@@ -60,6 +59,5 @@ void doJob(config conf){
             }
         }
     }
-    syslog(LOG_INFO, "doJob - Out");
     emptyList(first);
 }

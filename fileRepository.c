@@ -10,49 +10,42 @@
 #include <syslog.h>
 
 fileList* createList (){
-    syslog(LOG_INFO, "createList - In");
     fileList *list = malloc(sizeof(fileList));
     list->next = NULL;
     list->name = NULL;
     list->path = NULL;
-    syslog(LOG_INFO, "createList - Out");
     return list;
 }
 
 fileType getFileType(char *path){
-    syslog(LOG_INFO, "getFileType - In");
     struct stat dirstat;
     stat(path, &dirstat);
-    syslog(LOG_INFO, "getFileType - Out");
+
     if(S_ISREG(dirstat.st_mode)) return regularFile;
     else if(S_ISDIR(dirstat.st_mode)) return directory;
     else return unidentified;
 }
 
 fileList *addToList(fileList *list, char *name, char *path, fileType type){
-    syslog(LOG_INFO, "addToList - In");
     while(list->next != NULL){
-        syslog(LOG_INFO, "addToList - iterowanie po liscie");
-        list = list->next; //postawy programowania flashbacks
+        list = list->next;
     }
-    list->next = malloc(sizeof(fileList)); //jak koniec listy to dodajemy do listy plik - przgotowujemy pamiec
-    list = list->next; //lecymy
+    list->next = malloc(sizeof(fileList));
+    list = list->next;
     list->name = malloc(strlen(name)+1);
     list->path = malloc(strlen(path)+1);
-    syslog(LOG_INFO, "addToList - Copy");
     strcpy(list->name, name);
     strcpy(list->path, path);
     list->next = NULL;
     list->type = type;
-    syslog(LOG_INFO, "addToList - Out");
-    return list; //done
+    return list;
 }
 
 void *emptyList(fileList *first){
     if(first == NULL) {
         return 0;
     }
-    while(first->next != NULL){ //usuwaj poki lista nie bedzie pusta
+    while(first->next != NULL){
         fileList *prev = first;
         first = first->next;
         free(prev->name);
@@ -94,11 +87,9 @@ fileList *mergeList(fileList *list, fileList *next){
     return list;
 }
 
-fileList *deleteIfNotInSource(config conf){
+void deleteIfNotInSource(config conf){
     fileList *list = getFilesFromDirectory(conf.destinationDir, conf.recursive);
     fileList *reverse = reverseList(list);
-    fileList *first = reverse;
-    emptyList(list);
 
     while(reverse->next != NULL){
         reverse = reverse->next;
@@ -109,16 +100,20 @@ fileList *deleteIfNotInSource(config conf){
         char sourcePath[sourcePathLength];
         snprintf(targetPath, targetPathLength, "%s/%s", reverse->path, reverse->name);
         snprintf(sourcePath, sourcePathLength, "%s%s/%s", conf.sourceDir, reverse->path + strlen(conf.destinationDir), reverse->name);
-        if(!checkIfFileExists(sourcePath)){
+        if(checkIfFileExists(sourcePath) == 0){
             if(reverse->type == directory){
                 rmdir(targetPath);
+                syslog(LOG_INFO, "Directory deleted at: %s", targetPath);
             }
             else{
                 remove(targetPath);
+                syslog(LOG_INFO, "File deleted at: %s", targetPath);
             }
         }
-        emptyList(first);
     }
+
+    emptyList(reverse);
+    emptyList(list);
 }
 
 void injectTimestamps(char *source, char *dest){
